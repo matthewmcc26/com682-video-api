@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 env:
-  NODE_VERSION: '20.x'
+  NODE_VERSION: "20.x"
 
 jobs:
   build:
@@ -30,12 +30,14 @@ jobs:
       - name: Build (if present)
         run: npm run build --if-present
 
-      - name: Create deployment package
+      - name: Create deployment package (zip)
         run: |
           zip -r functionapp.zip . \
             -x "*.git*" \
                "node_modules/*" \
-               ".vscode/*"
+               ".vscode/*" \
+               ".github/*" \
+               "local.settings.json"
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
@@ -69,6 +71,8 @@ jobs:
           app-name: func-com682-video123
           package: functionapp.zip
 
+
           
+
 
 
