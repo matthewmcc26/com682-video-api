@@ -1,0 +1,6 @@
+{
+  "description": {
+    "defaultExecutablePath": "node",
+    "defaultWorkerPath": "node_modules/@azure/functions/dist/src/worker.js"
+  }
+}
