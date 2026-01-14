@@ -1,23 +1,19 @@
-name: Build and deploy Node.js project to Azure Function App - func-com682-video123
+name: Deploy Azure Functions
 
 on:
   push:
-    branches:
-      - main
+    branches: [ "main" ]
   workflow_dispatch:
 
 env:
-  NODE_VERSION: "20.x"
+  NODE_VERSION: '20.x'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -27,22 +23,17 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Build (if present)
+      - name: Build (if exists)
         run: npm run build --if-present
 
-      - name: Create deployment package (zip)
+      - name: Zip app for deployment
         run: |
-          sudo apt-get update
-          sudo apt-get install -y zip
           zip -r functionapp.zip . \
             -x ".git/*" \
                ".github/*" \
-               "node_modules/*" \
-               ".vscode/*" \
-               "local.settings.json"
+               ".vscode/*"
 
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@v4
         with:
           name: functionapp
           path: functionapp.zip
@@ -50,29 +41,25 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     needs: build
+
     permissions:
       id-token: write
       contents: read
 
     steps:
-      - name: Download artifact
-        uses: actions/download-artifact@v4
+      - uses: actions/download-artifact@v4
         with:
           name: functionapp
 
-      - name: Login to Azure
-        uses: azure/login@v2
+      - uses: azure/login@v2
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_966B0EAC8D5049F4AC5FAD4A29A4B9D8 }}
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C28212BB48AF4D15AEBF90C9A47A6893 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4E3B797297EA4E64AEC5F17C8C3AA551 }}
 
-      - name: Deploy to Azure Functions (build on server)
-        uses: Azure/functions-action@v1
+      - uses: Azure/functions-action@v1
         with:
           app-name: func-com682-video123
           package: functionapp.zip
-          scm-do-build-during-deployment: true
-          enable-oryx-build: true
 
 
