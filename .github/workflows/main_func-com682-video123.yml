@@ -32,11 +32,13 @@ jobs:
 
       - name: Create deployment package (zip)
         run: |
+          sudo apt-get update
+          sudo apt-get install -y zip
           zip -r functionapp.zip . \
-            -x "*.git*" \
+            -x ".git/*" \
+               ".github/*" \
                "node_modules/*" \
                ".vscode/*" \
-               ".github/*" \
                "local.settings.json"
 
       - name: Upload artifact
@@ -65,14 +67,12 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_C28212BB48AF4D15AEBF90C9A47A6893 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4E3B797297EA4E64AEC5F17C8C3AA551 }}
 
-      - name: Deploy to Azure Functions
+      - name: Deploy to Azure Functions (build on server)
         uses: Azure/functions-action@v1
         with:
           app-name: func-com682-video123
           package: functionapp.zip
-
-
-          
-
+          scm-do-build-during-deployment: true
+          enable-oryx-build: true
 
 
